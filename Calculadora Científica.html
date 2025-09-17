@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calculadora — Dose Máxima (Tubetes)</title>
+  <style>
+    :root{
+      --bg:#d6ecff; /* azul bebê */
+      --card:#eaf5ff;
+      --muted:#2e3b4e;
+      --accent:#002b5b; /* azul escuro para contraste */
+      --glass: rgba(255,255,255,0.6);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+   body {
+  margin: 0;
+  background: url('dente.jpeg') no-repeat center center fixed;
+  background-size: cover;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+    .wrap{
+      width:100%;
+      max-width:900px;
+      background:var(--card);
+      border-radius:14px;
+      padding:20px;
+      box-shadow:0 8px 30px rgba(0,0,0,0.25), 0 0 20px rgba(0,123,255,0.4);
+      border:1px solid rgba(0,0,0,0.05);
+    }
+
+    header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg, rgba(0,123,255,0.15), rgba(0,123,255,0.05));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:var(--accent);border:1px solid rgba(0,0,0,0.05)}
+    h1{margin:0;font-size:18px;letter-spacing:0.2px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .form{display:grid;grid-template-columns:1fr 160px;gap:12px;align-items:end;margin-top:16px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="number"]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--glass);color:var(--accent);font-size:16px;outline:none}
+    .btn{display:inline-block;width:100%;padding:10px 12px;border-radius:10px;text-align:center;background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;border:none;cursor:pointer;font-weight:600;box-shadow:0 4px 12px rgba(0,123,255,0.3)}
+    .btn:active{transform:translateY(1px)}
+
+    .results{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .card{background:rgba(255,255,255,0.8);padding:14px;border-radius:10px;border:1px solid rgba(0,0,0,0.05);min-height:88px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;box-shadow:0 4px 12px rgba(0,123,255,0.15)}
+    .card h3{margin:0;font-size:14px;color:var(--accent)}
+    .card p{margin:6px 0 0 0;font-weight:700;font-size:20px;color:var(--accent)}
+    .muted{color:var(--muted);font-size:13px}
+
+    .note{margin-top:14px;color:var(--muted);font-size:13px}
+    .error{color:#ff3333;font-weight:600;margin-top:8px}
+
+    .actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+
+    @media (max-width:600px){
+      header{flex-direction:column;align-items:flex-start}
+      .form{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <header>
+      <div class="logo">AL</div>
+      <div>
+        <h1>Calculadora de Dose Máxima — Tubetes (1,8 mL)</h1>
+        <p class="lead">Insira o peso da criança (kg). O sistema mostra a quantidade máxima de tubetes para cada anestésico.</p>
+      </div>
+    </header>
+
+    <form id="calcForm" class="form" onsubmit="return false;" autocomplete="off">
+      <div>
+        <label for="peso">Peso da criança (kg)</label>
+        <input id="peso" type="number" step="0.01" min="1" max="100" placeholder="ex: 18.0" required />
+        <div id="error" class="error" aria-live="polite" style="display:none"></div>
+      </div>
+      <div>
+        <button id="btnCalc" class="btn">Calcular</button>
+      </div>
+    </form>
+
+    <div class="results">
+      <div class="card"><h3>Lidocaína 2% (20 mg/mL)</h3><p id="lido">— tubetes</p><div class="muted">Dose máxima: 4,4 mg/kg</div></div>
+      <div class="card"><h3>Articaína 4% (40 mg/mL)</h3><p id="art">— tubetes</p><div class="muted">Dose máxima: 7,0 mg/kg</div></div>
+      <div class="card"><h3>Mepivacaína 3% (30 mg/mL)</h3><p id="mepi">— tubetes</p><div class="muted">Dose máxima: 4,4 mg/kg</div></div>
+    </div>
+
+    <div class="actions">
+      <button id="btnPDF" class="btn">Salvar PDF</button>
+    </div>
+
+    <div class="note">Resultados arredondados com até duas casas decimais. 1 tubete = 1,8 mL.</div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    (function(){
+      const TUBETE_ML = 1.8;
+      const anest = {
+        lido: { conc_mg_ml: 20, dose_mg_kg: 4.4 },
+        art:  { conc_mg_ml: 40, dose_mg_kg: 7.0 },
+        mepi: { conc_mg_ml: 30, dose_mg_kg: 4.4 }
+      };
+
+      const elPeso = document.getElementById('peso');
+      const btn = document.getElementById('btnCalc');
+      const btnPDF = document.getElementById('btnPDF');
+      const err = document.getElementById('error');
+      const outL = document.getElementById('lido');
+      const outA = document.getElementById('art');
+      const outM = document.getElementById('mepi');
+
+      function validar(p){
+        if (p === '' || Number.isNaN(Number(p))) return 'Insira um número válido.';
+        const val = Number(p);
+        if (val < 1) return 'Valor mínimo: 1 kg.';
+        if (val > 100) return 'Valor máximo: 100 kg.';
+        return '';
+      }
+
+      function calcularTubetes(peso, conc_mg_ml, dose_mg_kg){
+        const dose_mg = peso * dose_mg_kg;
+        const volume_ml = dose_mg / conc_mg_ml;
+        return volume_ml / TUBETE_ML;
+      }
+
+      function formatNumber(x){
+        return (!isFinite(x) || x <= 0) ? '— tubetes' : x.toFixed(2) + ' tubetes';
+      }
+
+      function executar(){
+        const v = elPeso.value.trim();
+        const msg = validar(v);
+        if (msg){
+          err.style.display = 'block';
+          err.textContent = msg;
+          outL.textContent = outA.textContent = outM.textContent = '— tubetes';
+          return;
+        }
+        err.style.display = 'none';
+        const peso = Number(v);
+
+        const resL = calcularTubetes(peso, anest.lido.conc_mg_ml, anest.lido.dose_mg_kg);
+        const resA = calcularTubetes(peso, anest.art.conc_mg_ml, anest.art.dose_mg_kg);
+        const resM = calcularTubetes(peso, anest.mepi.conc_mg_ml, anest.mepi.dose_mg_kg);
+
+        outL.textContent = formatNumber(resL);
+        outA.textContent = formatNumber(resA);
+        outM.textContent = formatNumber(resM);
+      }
+
+      function salvarPDF(){
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(14);
+        doc.text('Cálculo de Dose Máxima — Tubetes', 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Peso da criança: ${elPeso.value} kg`,20,30);
+        doc.text(`Lidocaína: ${outL.textContent}`,20,40);
+        doc.text(`Articaína: ${outA.textContent}`,20,50);
+        doc.text(`Mepivacaína: ${outM.textContent}`,20,60);
+        doc.save('calculo_tubetes.pdf');
+      }
+
+      btn.addEventListener('click', executar);
+      btnPDF.addEventListener('click', salvarPDF);
+      elPeso.addEventListener('keypress', e=>{if(e.key==='Enter') executar();});
+    })();
+  </script>
+</body>
+</html>
