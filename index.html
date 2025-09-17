@@ -6,59 +6,56 @@
   <title>Calculadora — Dose Máxima (Tubetes)</title>
   <style>
     :root{
-      --bg:#0b0b0b;
-      --card:#0f0f0f;
-      --muted:#bdbdbd;
-      --accent:#ffffff;
-      --glass: rgba(255,255,255,0.04);
+      --bg:#d6ecff; /* azul bebê */
+      --card:#eaf5ff;
+      --muted:#2e3b4e;
+      --accent:#002b5b; /* azul escuro para contraste */
+      --glass: rgba(255,255,255,0.6);
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--accent);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-    }
-
+   body {
+  margin: 0;
+  background: url('dente.jpeg') no-repeat center center fixed;
+  background-size: cover;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
     .wrap{
       width:100%;
-      max-width:880px;
-      background:linear-gradient(180deg,var(--card),#0b0b0b);
+      max-width:900px;
+      background:var(--card);
       border-radius:14px;
       padding:20px;
-      box-shadow:0 8px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
-      border:1px solid rgba(255,255,255,0.04);
+      box-shadow:0 8px 30px rgba(0,0,0,0.25), 0 0 20px rgba(0,123,255,0.4);
+      border:1px solid rgba(0,0,0,0.05);
     }
 
     header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:var(--muted);border:1px solid rgba(255,255,255,0.03)}
+    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg, rgba(0,123,255,0.15), rgba(0,123,255,0.05));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:var(--accent);border:1px solid rgba(0,0,0,0.05)}
     h1{margin:0;font-size:18px;letter-spacing:0.2px}
     p.lead{margin:0;color:var(--muted);font-size:13px}
 
     .form{display:grid;grid-template-columns:1fr 160px;gap:12px;align-items:end;margin-top:16px}
     label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    input[type="number"]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:var(--accent);font-size:16px;outline:none}
-    .btn{display:inline-block;width:100%;padding:10px 12px;border-radius:10px;text-align:center;background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.08);cursor:pointer;font-weight:600}
+    input[type="number"]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:var(--glass);color:var(--accent);font-size:16px;outline:none}
+    .btn{display:inline-block;width:100%;padding:10px 12px;border-radius:10px;text-align:center;background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;border:none;cursor:pointer;font-weight:600;box-shadow:0 4px 12px rgba(0,123,255,0.3)}
     .btn:active{transform:translateY(1px)}
 
     .results{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);min-height:88px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
-    .card h3{margin:0;font-size:14px}
-    .card p{margin:6px 0 0 0;font-weight:700;font-size:20px}
+    .card{background:rgba(255,255,255,0.8);padding:14px;border-radius:10px;border:1px solid rgba(0,0,0,0.05);min-height:88px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;box-shadow:0 4px 12px rgba(0,123,255,0.15)}
+    .card h3{margin:0;font-size:14px;color:var(--accent)}
+    .card p{margin:6px 0 0 0;font-weight:700;font-size:20px;color:var(--accent)}
     .muted{color:var(--muted);font-size:13px}
 
     .note{margin-top:14px;color:var(--muted);font-size:13px}
-    .error{color:#ff6b6b;font-weight:600;margin-top:8px}
+    .error{color:#ff3333;font-weight:600;margin-top:8px}
 
     .actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
-    .history{margin-top:20px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.05);background:var(--glass)}
-    .history h2{font-size:14px;margin:0 0 8px 0}
-    .history ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px}
 
     @media (max-width:600px){
       header{flex-direction:column;align-items:flex-start}
@@ -97,11 +94,6 @@
       <button id="btnPDF" class="btn">Salvar PDF</button>
     </div>
 
-    <div class="history">
-      <h2>Histórico de cálculos</h2>
-      <ul id="historyList"></ul>
-    </div>
-
     <div class="note">Resultados arredondados com até duas casas decimais. 1 tubete = 1,8 mL.</div>
   </div>
 
@@ -122,7 +114,6 @@
       const outL = document.getElementById('lido');
       const outA = document.getElementById('art');
       const outM = document.getElementById('mepi');
-      const historyList = document.getElementById('historyList');
 
       function validar(p){
         if (p === '' || Number.isNaN(Number(p))) return 'Insira um número válido.';
@@ -161,22 +152,6 @@
         outL.textContent = formatNumber(resL);
         outA.textContent = formatNumber(resA);
         outM.textContent = formatNumber(resM);
-
-        salvarHistorico(peso,resL,resA,resM);
-      }
-
-      function salvarHistorico(peso,l,a,m){
-        const data = new Date().toLocaleString();
-        const item = `Peso: ${peso} kg — Lidocaína: ${l.toFixed(2)} | Articaína: ${a.toFixed(2)} | Mepivacaína: ${m.toFixed(2)} (${data})`;
-        let hist = JSON.parse(localStorage.getItem('historicoCalc')||'[]');
-        hist.unshift(item);
-        localStorage.setItem('historicoCalc',JSON.stringify(hist.slice(0,10)));
-        renderHistorico();
-      }
-
-      function renderHistorico(){
-        let hist = JSON.parse(localStorage.getItem('historicoCalc')||'[]');
-        historyList.innerHTML = hist.map(h=>`<li>${h}</li>`).join('');
       }
 
       function salvarPDF(){
@@ -195,7 +170,6 @@
       btn.addEventListener('click', executar);
       btnPDF.addEventListener('click', salvarPDF);
       elPeso.addEventListener('keypress', e=>{if(e.key==='Enter') executar();});
-      document.addEventListener('DOMContentLoaded', renderHistorico);
     })();
   </script>
 </body>
